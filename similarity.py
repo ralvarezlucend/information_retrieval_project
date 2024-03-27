@@ -20,15 +20,15 @@ from sklearn.metrics.pairwise import cosine_similarity
 # Importing nltk (natural language toolkit library)
 import nltk
 # nltk.download('omw-1.4')
-
+#
 # # Downloading punctuations
 # nltk.download('punkt')
-
+#
 # # Downloading stopwords
 # nltk.download('stopwords')
-
+#
 # # Downloading wordnet
-# nltk.download('wordnet') 
+# nltk.download('wordnet')
 
 # Create a function to tokenize the text
 def tokenize(text):
@@ -75,21 +75,23 @@ song_tfidf = tfidf.fit_transform(df_small['text'].values).toarray()
 # Calculating the cosine similarity
 similar_songs = cosine_similarity(song_tfidf, song_tfidf)
 
+
 # Function that takes in song title as input and returns the top 10 recommended songs
 def recommendations(title, similar_songs, n):
-    recommended_songs = []
     indices = pd.Series(df_small.index)
     idx = indices[indices == title].index[0]
 
     score_series = pd.Series(similar_songs[idx]).sort_values(ascending = False)
 
     top_10_indexes = list(score_series.iloc[1 : n+1].index)
-    top_10_rankings = list(score_series.iloc[1 : n+1].values)
-    
-    for i in top_10_indexes:
-        recommended_songs.append(list(df_small.index)[i])
 
-    return list(zip(recommended_songs, top_10_rankings))
+    recommended_songs = {'track_name': [], 'similarity': []}
+    for i in top_10_indexes:
+        recommended_songs['track_name'].append(df_small.index[i])
+        recommended_songs['similarity'].append(score_series[i])
+
+    return pd.DataFrame(recommended_songs)
+
 
 print(recommendations('necessary evil', similar_songs, n=10))
 
