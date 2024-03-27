@@ -43,11 +43,13 @@ song_info_df = pd.read_csv('data/song_data.csv')
 # Merge the recommendations with the song information
 merged_df = pd.merge(rec_df, song_info_df, on='song_id')
 
+merged_df.to_csv('results/recommendations.csv', index=False)
+
 # Add text info to compute similarity between songs (working with the current data)
 text_info = merged_df['title'] + ' ' + merged_df['release'] + ' ' + merged_df['artist_name']
 merged_df["text"] = text_info
 
-diversified_recommendation = diversity_using_mmr(merged_df, top_n=5)
+diversified_recommendation = diversity_using_mmr(merged_df, top_n=5, lambda_param=0.5)
 
 # Save the recommendations to a file
-diversified_recommendation.to_csv('results/recommendations_1user_top100_diversify.csv', index=False)
+diversified_recommendation.to_csv('results/recommendations_diversed.csv', index=False)

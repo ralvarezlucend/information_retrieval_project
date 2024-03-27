@@ -6,6 +6,7 @@ from surprise import accuracy
 from surprise import dump
 import pandas as pd
 from tqdm import tqdm
+import numpy as np
 
 
 def split(df, test_size: float = 0.25):
@@ -92,6 +93,11 @@ def calculate_similarity(text1, text2):
 
     return cos_sim[0][0]
 
+def compute_dissimilarity(selected, song_text):
+    """Intra-list diversity using MMR"""
+    dissimilarity = np.mean([1 - calculate_similarity(song_text, s['text']) for s in selected])
+    return dissimilarity
+
 
 def diversity_using_mmr(recommendations, top_n, lambda_param=0.7):
     recommendations['song_id'] = recommendations['song_id'].astype(str)
@@ -109,16 +115,16 @@ def diversity_using_mmr(recommendations, top_n, lambda_param=0.7):
             if not selected:
                 mmr_score = lambda_param * song['rank']
             else:
-                # Compute maximum similarity to already selected songs
-                max_similarity = max(calculate_similarity(song_text, s['text']) for s in selected)
-                mmr_score = lambda_param * song['rank'] - (1 - lambda_param) * max_similarity
-                print(str(max_similarity) + " " + str(mmr_score))
+                # Compute dissimilarity to already selected songs
+                dissimilarity = compute_dissimilarity(selected, song_text)
+                mmr_score = lambda_param * song['rank'] - (1 - lambda_param) * dissimilarity
+                # print(str(dissimilarity) + " " + str(mmr_score))
+           
             mmr_scores.append(mmr_score)
 
         # Select song with highest MMR score
-        max_mmr_idx = mmr_scores.index(max(mmr_scores))
+        max_mmr_idx = np.argmax(mmr_scores)
         selected_song = remaining.pop(max_mmr_idx)
-
         selected.append(selected_song)
 
     return pd.DataFrame(selected)

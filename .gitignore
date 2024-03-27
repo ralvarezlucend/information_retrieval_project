@@ -2,6 +2,6 @@ data/
 models/
 results/
 __pycache__/
-
+.DS_Store
 # IDE
 .idea
