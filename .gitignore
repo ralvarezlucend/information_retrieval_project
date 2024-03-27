@@ -1,7 +1,3 @@
-data/
-models/
-results/
-__pycache__/
-
-# IDE
-.idea
+*.ipynb_checkpoints
+*.csv
+*.tsv
