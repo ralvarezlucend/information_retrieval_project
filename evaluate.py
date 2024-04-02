@@ -6,8 +6,11 @@ from diversify import diversity_using_mmr
 matplotlib.use('TkAgg')
 
 
-def plot_lambda():
-    """"Plot the mean normalized nDCG for different lambda parameters."""
+def plot_lambda(files=False):
+    """"
+    Plot the mean normalized nDCG for different lambda parameters.
+    files - set to True if the files were already generated
+    """
     df_recs = pd.read_csv("results/normalized_recs.tsv", sep='\t')
 
     # Get recommendations for one user
@@ -24,13 +27,12 @@ def plot_lambda():
 
     # 1 USER
     for lambda_param in lambda_params:
-        diversed_recs = diversity_using_mmr(df_1, top_n, lambda_param=lambda_param)
-        diversed_recs.to_csv(f'results/diversed_recs_lambda{lambda_param}=.tsv', sep='\t', index=False, header=['movie_id', 'score'])
-        diversed_recs = pd.read_csv('results/diversed_recs.tsv', sep='\t', header=0)
+        if not files:
+            diversed_recs = diversity_using_mmr(df_1, top_n, lambda_param=lambda_param)
+            diversed_recs.to_csv(f'results/diversed_recs_lambda{lambda_param}.tsv', sep='\t', index=False,
+                                 header=['movie_id', 'score'])
 
-        print("user ", user, "\n")
-        print("recs:\n", recs[['movie_id', 'score']])
-        print("\ndiversified recs:\n", diversed_recs)
+        diversed_recs = pd.read_csv(f'results/diversed_recs_lambda{lambda_param}.tsv', sep='\t', header=0)
 
         recs_mean = recs['score'].mean()
         recs_means.append(recs_mean)
@@ -52,4 +54,4 @@ def plot_lambda():
     plt.show()
 
 
-plot_lambda()
+plot_lambda(files=True)
