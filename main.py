@@ -11,22 +11,23 @@ pd.options.mode.chained_assignment = None
 df_recs = pd.read_csv("results/normalized_recs.tsv", sep='\t')
 
 # Get recommendations for one user
-df_1 = df_recs[df_recs['user_id'] == 2]
+user = 2
+df_1 = df_recs[df_recs['user_id'] == user]
 
 
 top_n = 10
 
 # save diversified recommendations
-diversed_recs = diversity_using_mmr(df_1, top_n)
-diversed_recs.to_csv('results/diversed_recs_1.tsv', sep='\t', index=False, header=['movie_id', 'score'])
+# diversed_recs = diversity_using_mmr(df_1, top_n)
+# diversed_recs.to_csv('results/diversed_recs.tsv', sep='\t', index=False, header=['movie_id', 'score'])
 
 # load diversified recommendations
-diversed_recs = pd.read_csv('results/diversed_recs_1.tsv', sep='\t', header=0)
+diversed_recs = pd.read_csv('results/diversed_recs.tsv', sep='\t', header=0)
 
 
 recs = df_1[:top_n]
 
-print("user 2\n")
+print("user ", user, "\n")
 print("recs:\n", recs[['movie_id', 'score']])
 print("\ndiversified recs:\n", diversed_recs)
 
