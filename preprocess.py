@@ -4,7 +4,7 @@ pd.options.mode.chained_assignment = None
 
 def normalize_user():
     """"Normalize the nDCG rating from 0 to 1"""
-    df_recs = pd.read_csv("results/recommendations.tsv", sep='\t', names=['user_id', 'movie_id', 'score'])
+    df_recs = pd.read_csv("results/recs.tsv", sep='\t', names=['user_id', 'movie_id', 'score'])
     df_recs_norm = pd.DataFrame()
 
     user_ids = df_recs['user_id'].unique()

@@ -79,12 +79,13 @@ def diversity_using_mmr(recommendations, top_n, lambda_param=0.5):
 
             if not selected:
                 mmr_score = lambda_param * movie['score']
+                mmr_scores.append(mmr_score)
+                break
             else:
                 # Compute dissimilarity to already selected songs
                 dissimilarity = compute_dissimilarity(selected.keys(), movie_id)
-                mmr_score = lambda_param * movie['score'] - (1 - lambda_param) * dissimilarity
-      
-            mmr_scores.append(mmr_score)
+                mmr_score = lambda_param * movie['score'] + (1 - lambda_param) * dissimilarity
+                mmr_scores.append(mmr_score)
 
         # Select song with highest MMR score
         max_mmr_idx = np.argmax(mmr_scores)

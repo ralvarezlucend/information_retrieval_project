@@ -10,29 +10,30 @@ pd.options.mode.chained_assignment = None
 
 df_recs = pd.read_csv("results/normalized_recs.tsv", sep='\t')
 
+
 # Get recommendations for one user
 user = 2
-df_1 = df_recs[df_recs['user_id'] == user]
-
-
 top_n = 10
+df_1 = df_recs[df_recs['user_id'] == user]
+print(df_1[df_1['movie_id'] == 34])
+
 
 # save diversified recommendations
-# diversed_recs = diversity_using_mmr(df_1, top_n)
-# diversed_recs.to_csv('results/diversed_recs.tsv', sep='\t', index=False, header=['movie_id', 'score'])
+diversed_recs = diversity_using_mmr(df_1, top_n)
+diversed_recs.to_csv('results/diversed_recs.tsv', sep='\t', index=False, header=['movie_id', 'score'])
 
-# load diversified recommendations
-diversed_recs = pd.read_csv('results/diversed_recs.tsv', sep='\t', header=0)
+# # load diversified recommendations
+# diversed_recs = pd.read_csv('results/diversed_recs.tsv', sep='\t', header=0)
 
 
-recs = df_1[:top_n]
+# recs = df_1[:top_n]
 
-print("user ", user, "\n")
-print("recs:\n", recs[['movie_id', 'score']])
-print("\ndiversified recs:\n", diversed_recs)
+# print("user ", user, "\n")
+# print("recs:\n", recs[['movie_id', 'score']])
+# print("\ndiversified recs:\n", diversed_recs)
 
-print('\nnormal score:', recs['score'].mean())
-print('diversed score', diversed_recs['score'].astype(float).mean())
+# print('\nnormal score:', recs['score'].mean())
+# print('diversed score', diversed_recs['score'].astype(float).mean())
 
-not_common = set(diversed_recs.loc[:, 'movie_id']) - set(recs.loc[:, 'movie_id'])
-print('NOT COMMON:', not_common)
+# not_common = set(diversed_recs.loc[:, 'movie_id']) - set(recs.loc[:, 'movie_id'])
+# print('NOT COMMON:', not_common)
