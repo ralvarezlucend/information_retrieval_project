@@ -3,6 +3,7 @@ import pandas as pd
 pd.options.mode.chained_assignment = None
 
 def normalize_user():
+    """"Normalize the nDCG rating from 0 to 1"""
     df_recs = pd.read_csv("results/recommendations.tsv", sep='\t', names=['user_id', 'movie_id', 'score'])
     df_recs_norm = pd.DataFrame()
 
@@ -18,4 +19,4 @@ def normalize_user():
         # fill in dataframe
         df_recs_norm = pd.concat([df_recs_norm, df_1])
 
-    df_recs_norm.to_csv('results/normalized_recs.tsv', sep='\t', index=False)  # header=['user_id', 'movie_id', 'score']
+    df_recs_norm.to_csv('results/normalized_recs.tsv', sep='\t', index=False)
