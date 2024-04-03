@@ -1,5 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 from diversify import diversity_using_mmr
@@ -35,11 +36,20 @@ def plot_lambda(files=False):
 
         diversed_recs = pd.read_csv(f'results/diversed_recs_lambda{lambda_param}.tsv', sep='\t', header=0)
 
-        recs_mean = recs['score'].mean()
-        recs_means.append(recs_mean)
+        weights = np.arange(1, 0, -0.1)
 
-        diversed_recs_mean = diversed_recs['score'].astype(float).mean()
-        diversed_recs_means.append(diversed_recs_mean)
+        weighted_mean_recs = np.average(recs['score'], weights=weights)
+
+        # recs_mean = recs['score'].mean()
+        recs_means.append(weighted_mean_recs)
+
+        weighted_mean_div_recs = np.average(diversed_recs['score'], weights=weights)
+
+        # diversed_recs_mean = diversed_recs['score'].astype(float).mean()
+        # diversed_recs_means.append(diversed_recs_mean)
+
+        diversed_recs_means.append(weighted_mean_div_recs)
+
         diversed_recs_data.append(diversed_recs['score'].astype(float))
 
         # The new diversified recommendations that do not appear in the initial recommendations
@@ -47,7 +57,7 @@ def plot_lambda(files=False):
         print('NOT COMMON:', not_common)
 
     plt.figure(figsize=(10, 7))
-    plt.plot(lambda_params, recs_means, label='Mean of the nDCG scores of elliot recommendations')  # Ensure the line is above the boxplots
+    plt.plot(lambda_params, recs_means, label='Weighted mean of the nDCG scores of elliot recommendations')  # Ensure the line is above the boxplots
 
     # Create box plots at the specified lambda positions with a smaller width
     plt.boxplot(diversed_recs_data, positions=lambda_params, widths=0.05, showmeans=True)
@@ -61,7 +71,7 @@ def plot_lambda(files=False):
     plt.xlabel(r"$\lambda$")
     plt.ylabel("Mean normalized nDCG")
     plt.legend()
-    plt.title('Mean nDCG of elliot recommendations and box plots of diversified recommendations')
+    plt.title('Weighted mean nDCG of elliot recommendations and box plots of diversified recommendations')
     plt.savefig("box_plots.pdf")
     plt.show()
 
