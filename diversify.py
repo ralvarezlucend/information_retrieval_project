@@ -9,14 +9,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 df = pd.read_csv("new_movie_data/final_cleaned_2.csv")
 df['overview'].fillna('', inplace=True)
-df['text'] = df['title'] + ' ' + df['overview'] + ' ' + df['release_date'].apply(str)
+df['text'] = df['title'] + ' ' + df['release_date'].apply(str)  # ' ' + df['overview'] +
 
 attributes = {
-    'genres': 1, 
-    'production_companies': 0, 
-    'spoken_languages': 0, 
-    'keywords': 0, 
-    'crew': 0, 
+    'genres': 1,
+    'production_companies': 0,
+    'spoken_languages': 0,
+    'keywords': 0,
+    'crew': 0,
     'cast': 0,
     'text': 0
 }
@@ -38,13 +38,11 @@ def get_similarity(id_1, id_2):
     movie_1 = df[df['id'] == id_1]
     movie_2 = df[df['id'] == id_2]
 
-    if movie_1.empty or movie_2.empty:
-        return 0
-
     # similarity based on text (overview, title, release_date)
     text_1 = movie_1['text'].values[0]
     text_2 = movie_2['text'].values[0]
 
+    # Comment out when not using the text!!!!!!!!!
     tfidf = TfidfVectorizer(tokenizer = tokenize)
     movie_tfidf = tfidf.fit_transform([text_1, text_2])
     cos_sim = cosine_similarity(movie_tfidf[0:1], movie_tfidf[1:2])[0][0]
