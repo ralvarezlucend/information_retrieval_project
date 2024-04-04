@@ -38,6 +38,7 @@ print(f'Shapiro-Wilk Test for diversified mean: statistic={shapiro_test_diversif
 
 # Print the results of the paired t-test or Wilcoxon signed-rank test
 if normal_distribution:
-    print(f'Paired t-test: statistic={t_test_result.statistic}, p-value={t_test_result.pvalue}')
+    # print(f'Paired t-test: statistic={t_test_result.statistic}, p-value={t_test_result.pvalue}')
+    print(f"Result is statistically significant: {t_test_result.pvalue <= 0.05} with 5% significance level")
 else:
     print(f'Wilcoxon signed-rank test: statistic={wilcoxon_test_result.statistic}, p-value={wilcoxon_test_result.pvalue}')
