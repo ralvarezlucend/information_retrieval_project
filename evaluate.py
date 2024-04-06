@@ -57,23 +57,23 @@ def plot_lambda(files=False):
         print('NOT COMMON:', not_common)
 
     plt.figure(figsize=(10, 7))
-    plt.plot(lambda_params, recs_means, label='Weighted mean of the nDCG scores of elliot recommendations')  # Ensure the line is above the boxplots
+    plt.plot(lambda_params, recs_means, label='Weighted mean of the normalized relevance scores of elliot recommendations')  # Ensure the line is above the boxplots
 
     # Create box plots at the specified lambda positions with a smaller width
     plt.boxplot(diversed_recs_data, positions=lambda_params, widths=0.05, showmeans=True)
 
     # Plot a line connecting the means of the box plots
-    plt.plot(lambda_params, diversed_recs_means, color='red', label='Distribution of the nDCG scores of diversification recommendations', linestyle='--')
+    plt.plot(lambda_params, diversed_recs_means, color='red', label='Distribution of the normalized relevance scores of diversification recommendations', linestyle='--')
 
     # Set x-axis limits to remove the empty space on the ends
     plt.xlim(min(lambda_params) - 0.1, max(lambda_params) + 0.1)
 
     plt.xlabel(r"$\lambda$")
-    plt.ylabel("Mean normalized nDCG")
+    plt.ylabel("Mean normalized relevance score")
     plt.legend()
-    plt.title('Weighted mean nDCG of elliot recommendations and box plots of diversified recommendations')
+    plt.title('Weighted mean normalized relevance score of elliot recommendations and box plots of diversified recommendations')
     plt.savefig("box_plots.pdf")
     plt.show()
 
 
-plot_lambda(files=True)
+plot_lambda(files=False)
