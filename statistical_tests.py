@@ -2,12 +2,41 @@ import pandas as pd
 import numpy as np
 from diversify import diversity_using_mmr
 from tqdm import tqdm
+from scipy import stats
 
 # for reproducibility
 np.random.seed(42)
 
 recs = pd.read_csv("results/normalized_recs.tsv", sep='\t')
 all_user_ids = list(recs['user_id'].unique())
+
+def test_difference(df,s):
+    # Shapiro-Wilk test for normality on the differences
+    print(f"For strategy {s}")
+    shapiro_test_original = stats.shapiro(df['original_mean'])
+    shapiro_test_diversified = stats.shapiro(df['diversified_mean'])
+
+
+    normal_distribution = True if (shapiro_test_original.pvalue > 0.05 and shapiro_test_diversified.pvalue > 0.05) else False
+
+    # Perform a paired t-test if both sets of data are normally distributed
+    # Otherwise, perform the Wilcoxon signed-rank test
+    if normal_distribution:
+        t_test_result = stats.ttest_rel(df['original_mean'], df['diversified_mean'])
+    else:
+        wilcoxon_test_result = stats.wilcoxon(df['original_mean'], df['diversified_mean'])
+
+    # Print the Shapiro-Wilk test results
+    print(f'Shapiro-Wilk Test for original mean: statistic={shapiro_test_original.statistic}, p-value={shapiro_test_original.pvalue}')
+    print(f'Shapiro-Wilk Test for diversified mean: statistic={shapiro_test_diversified.statistic}, p-value={shapiro_test_diversified.pvalue}')
+
+    # Print the results of the paired t-test or Wilcoxon signed-rank test
+    if normal_distribution:
+        # print(f'Paired t-test: statistic={t_test_result.statistic}, p-value={t_test_result.pvalue}')
+        print(f"Result is statistically significant: {t_test_result.pvalue <= 0.05} with 5% significance level")
+    else:
+        print(f'Wilcoxon signed-rank test: statistic={wilcoxon_test_result.statistic}, p-value={wilcoxon_test_result.pvalue}')
+    print("\n")
 
 
 def strategy_comparison(num_users, strategies):
@@ -68,4 +97,6 @@ df_results['difference'] = df_results['difference'].round(3)
 for s in strategies:
     df_s = df_results[df_results['strategy'] == s][['user', 'original_mean', 'diversified_mean', 'difference']]
     table = df_s.to_latex(index=False, caption=s, column_format='cccc')
-    print(table)
+    test_difference(df_s,s)
+    
+    # print(table)
