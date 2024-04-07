@@ -1,0 +1,18 @@
+experiment:
+  dataset: new_movie_data
+  data_config:
+    strategy: dataset
+    dataset_path: ../data/new_movie_data/ratings_only_released.tsv
+  splitting:
+    test_splitting:
+        strategy: random_subsampling
+        test_ratio: 0.2
+  top_k: 100
+  evaluation:
+    simple_metrics: [nDCG]
+  models:
+    ItemKNN:
+      meta:
+        save_recs: True
+      neighbors: 50
+      similarity: cosine

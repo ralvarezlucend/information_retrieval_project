@@ -1,6 +1,7 @@
-data
-models
-results
-__pycache__
-.DS_Store
+*.ipynb_checkpoints
+*.csv
+*.tsv
+/dict
 .idea
+__pycache__
+new_movie_data/*

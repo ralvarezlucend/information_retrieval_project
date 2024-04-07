@@ -1,77 +1,43 @@
 import pandas as pd
-from surprise import SVD, KNNBasic
-from surprise import dump
-from utils import transform_and_split, train_and_save_model, compute_rmse, get_top_n
-import plotly.graph_objs as go
-from plotly.offline import iplot
 
-# Dataset taken from: "http://millionsongdataset.com/tasteprofile/"
-# user_id and song_id fields are anonymized.
-data_file = 'data/10000.txt'
-# Use SVD as it scales well, KNN causes python process to crash (out of memory)
-dump_file = 'models/svd.pkl'
+from diversify import diversity_using_mmr
+from preprocess import normalize_user
 
-# Load the data into a pandas dataframe
-df = pd.read_csv(data_file, sep='\t', header=None, names=['user_id', 'song_id', 'play_count'])
+pd.options.mode.chained_assignment = None
 
-# # filter out users with little ratings
-min_user_ratings = 50
-filter_users = df['user_id'].value_counts() > min_user_ratings
-filter_users = filter_users[filter_users].index.tolist()
+# Normalize the ratings for all users
+# normalize_user()
 
-# # filter out songs with little ratings
-# min_song_ratings = 50
-# filter_songs = df['song_id'].value_counts() > min_song_ratings
-# filter_songs = filter_songs[filter_songs].index.tolist()
+# Get recommendations for one user
+df_recs = pd.read_csv("results/normalized_recs.tsv", sep='\t')
+user = 2
+df_1 = df_recs[df_recs['user_id'] == user]
 
-# Filter the data frame
-df_new = df[(df['user_id'].isin(filter_users))]
-print('The original data frame shape:\t{}'.format(df.shape))
-print('The new data frame shape:\t{}'.format(df_new.shape))
+# # Use to compare the recommendations in the experiments
+# df_2 = df_1[['movie_id', 'score']]
+# df_2 = df_2[:top_n]
+# df_2.to_csv('results/top10_recs.tsv', sep='\t', index=False, header=['movie_id', 'score'])
 
-# Plot the number of ratings per user
-# data = df.groupby('user_id')['play_count'].count()
-# trace = go.Histogram(x = data.values)
-# fig = go.Figure(data=[trace])
-# fig.update_layout(xaxis_title="ratings per user", yaxis_title="count")
-# iplot(fig)
+print(df_1[df_1['movie_id'] == 34])  # this should be empty
 
-# # Plot the number of ratings per song
-# data = df.groupby('song_id')['play_count'].count()
-# trace = go.Histogram(x = data.values)
-# fig = go.Figure(data=[trace])
-# fig.update_layout(xaxis_title="ratings per song", yaxis_title="count")
-# iplot(fig)
+# # Check how many recommendations there are per user after we removed the missing movie ids
+# user_ids = df_recs['user_id'].unique()
+# for user_id in user_ids:
+#     print(len(df_recs[df_recs['user_id'] == user_id]))
 
-# Print some information about the data
-# print("Number of unique users:", df['user_id'].nunique())
-# print("Number of unique songs:", df['song_id'].nunique())
-# print("Number of records", df.shape[0])
+# save diversified recommendations
+top_n = 10
+# diversed_recs = diversity_using_mmr(df_1, top_n)
+# diversed_recs.to_csv('results/diversed_recs.tsv', sep='\t', index=False, header=['movie_id', 'score'])
+diversed_recs = pd.read_csv('results/diversed_recs_genres.tsv', sep='\t', header=0)
 
-# # Train the model and save it to a file
-# algorithm = KNNBasic()
-# trainset, testset = transform_and_split(df_new, test_size=0.3)
-# train_and_save_model(algorithm, trainset, dump_file)
-# rmse = compute_rmse(algorithm, testset)
+recs = df_1[:top_n]
 
+print("user ", user, "\n")
+print("recs:\n", recs[['movie_id', 'score']])
+print("\ndiversified recs:\n", diversed_recs)
+print('\nnormal score:', recs['score'].mean())
+print('diversed score', diversed_recs['score'].astype(float).mean())
 
-# _, algorithm = dump.load(dump_file)
-
-
-# # Get the inner ids of the users and songs
-# user_inner_ids = algorithm.trainset.all_users()
-# song_inner_ids = algorithm.trainset.all_items()
-
-# # Convert inner ids to raw ids
-# user_raw_ids = [algorithm.trainset.to_raw_uid(uid) for uid in user_inner_ids]
-# song_raw_ids = [algorithm.trainset.to_raw_iid(iid) for iid in song_inner_ids]
-
-# # # TODO: how to make sure recommended songs are not already in the user's playlist?
-# # # One way to solve this is to filter out songs that the user has already listened to.
-
-# rec_df = get_top_n(user_raw_ids[:3], song_raw_ids, algorithm, n=5)
-# song_info_df = pd.read_csv('data/song_data.csv')
-# # Merge the recommendations with the song information
-# merged_df = pd.merge(rec_df, song_info_df, on='song_id')
-# # Save the recommendations to a file
-# merged_df.to_csv('results/recommendations.csv', index=False)
+not_common = set(diversed_recs.loc[:, 'movie_id']) - set(recs.loc[:, 'movie_id'])
+print('NOT COMMON:', not_common)
